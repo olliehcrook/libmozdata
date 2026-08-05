@@ -4,7 +4,6 @@ import logging
 import os
 import pickle
 import re
-import sys
 import unittest
 
 import responses
@@ -109,13 +108,10 @@ class MockTestCase(unittest.TestCase):
         if "accept-encoding" in headers:
             del headers["accept-encoding"]
 
-        # Method arg is not supported by Python 2
-        if sys.version_info >= (3, 0):
-            real_req = Request(
-                request.url, request.body, headers=headers, method=request.method
-            )
-        else:
-            real_req = Request(request.url, request.body, headers=headers)
+        real_req = Request(
+            request.url, request.body, headers=headers, method=request.method
+        )
+
         try:
             resp = urlopen(real_req)
         except HTTPError as e:

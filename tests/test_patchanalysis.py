@@ -4,7 +4,6 @@
 
 import json
 import os
-import sys
 import unittest
 import warnings
 from datetime import datetime, timedelta
@@ -362,15 +361,14 @@ class PatchAnalysisTest(MockTestCase):
         # Author has a different name on Bugzilla and Mercurial and they don't use the email on Mercurial.
         with warnings.catch_warnings(record=True) as w:
             info = patchanalysis.bug_analysis(1220307, uplift_channel="release")
-            if sys.version_info >= (3, 0):
-                self.assertWarnings(
-                    w,
-                    [
-                        "da10eecd0e76 looks like a backout, but we couldn't find which revision was backed out.",
-                        "Revision da10eecd0e76 is related to another bug (1276850).",
-                        "Bug 1220307 doesn't have a uplift request date.",
-                    ],
-                )
+            self.assertWarnings(
+                w,
+                [
+                    "da10eecd0e76 looks like a backout, but we couldn't find which revision was backed out.",
+                    "Revision da10eecd0e76 is related to another bug (1276850).",
+                    "Bug 1220307 doesn't have a uplift request date.",
+                ],
+            )
             self.assertEqual(info["backout_num"], 2)
             self.assertEqual(info["blocks"], 4)
             self.assertEqual(info["depends_on"], 1)
@@ -380,15 +378,14 @@ class PatchAnalysisTest(MockTestCase):
 
         with warnings.catch_warnings(record=True) as w:
             info = patchanalysis.bug_analysis(1276850, uplift_channel="release")
-            if sys.version_info >= (3, 0):
-                self.assertWarnings(
-                    w,
-                    [
-                        "da10eecd0e76 looks like a backout, but we couldn't find which revision was backed out.",
-                        "Author bugmail@mozilla.staktrace.com is not in the list of authors on Bugzilla ().",
-                        "Bug 1276850 doesn't have a uplift request date.",
-                    ],
-                )
+            self.assertWarnings(
+                w,
+                [
+                    "da10eecd0e76 looks like a backout, but we couldn't find which revision was backed out.",
+                    "Author bugmail@mozilla.staktrace.com is not in the list of authors on Bugzilla ().",
+                    "Bug 1276850 doesn't have a uplift request date.",
+                ],
+            )
             self.assertEqual(info["backout_num"], 0)
             self.assertEqual(info["blocks"], 1)
             self.assertEqual(info["depends_on"], 0)
