@@ -61,7 +61,8 @@ class Connection(object):
     )
 
     # Error 429 is for 'Too many requests' => we retry
-    STATUS_FORCELIST = [429]
+    # Also retry on server errors.
+    STATUS_FORCELIST = [429, 500, 502, 503, 504]
 
     def __init__(self, base_url, queries=None, **kwargs):
         """Constructor
