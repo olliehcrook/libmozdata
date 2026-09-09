@@ -19,7 +19,9 @@ HGMO_JSON_REV_URL_TEMPLATE = "https://hg.mozilla.org/mozilla-central/json-rev/{}
 MOZILLA_PHABRICATOR_PROD = "https://phabricator.services.mozilla.com/api/"
 
 PhabricatorPatch = collections.namedtuple(
-    "PhabricatorPatch", "id, phid, patch, base_revision, commits, merged"
+    "PhabricatorPatch",
+    "id, phid, patch, base_revision, commits, merged, first_public_parent",
+    defaults=[None],
 )
 
 logger = logging.getLogger(__name__)
@@ -705,13 +707,24 @@ class PhabricatorAPI(object):
                 diff_phid=diff["phid"], attachments={"commits": True}
             )
             commits = diffs[0]["attachments"]["commits"].get("commits", [])
+            query_diffs = self.request("differential.querydiffs", ids=[diff["id"]])
+            properties = query_diffs.get(str(diff["id"]), {}).get("properties", {})
+            first_public_parent = properties.get("moz-phab:first-public-parent")
+            if isinstance(first_public_parent, dict):
+                first_public_parent = first_public_parent.get("node")
             logger.info(
                 "Adding patch #{} to stack ({})".format(
                     diff["id"], "merged" if merged else "non-merged"
                 )
             )
             return PhabricatorPatch(
-                diff["id"], diff["phid"], patch, diff["baseRevision"], commits, merged
+                diff["id"],
+                diff["phid"],
+                patch,
+                diff["baseRevision"],
+                commits,
+                merged,
+                first_public_parent,
             )
 
         # Load full diff when not provided by user
