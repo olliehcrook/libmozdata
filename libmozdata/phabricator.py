@@ -714,7 +714,7 @@ class PhabricatorAPI(object):
                 logger.warn("Diff %s has no local:commits property", diff["id"])
 
             first_public_parent = None
-            # local:commits is keyed by the local commit node , which may differ from
+            # local:commits is keyed by the local commit node, which may differ from
             # the public commit identifier exposed by Phabricator's commits attachment
             # hence iterating over values (there is only one in the dict but key unknown).
             for local_commit in local_commits.values():
