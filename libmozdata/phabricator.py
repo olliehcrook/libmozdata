@@ -715,7 +715,7 @@ class PhabricatorAPI(object):
 
             first_public_parent = None
             # local:commits is keyed by the local commit node , which may differ from
-            # the public commit identifier exposed by Phabricators commits attachment
+            # the public commit identifier exposed by Phabricator's commits attachment
             # hence iterating over values (there is only one in the dict but key unknown).
             for local_commit in local_commits.values():
                 first_public_parent = local_commit.get("firstPublicParent")
