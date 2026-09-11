@@ -709,9 +709,18 @@ class PhabricatorAPI(object):
             commits = diffs[0]["attachments"]["commits"].get("commits", [])
             query_diffs = self.request("differential.querydiffs", ids=[diff["id"]])
             properties = query_diffs.get(str(diff["id"]), {}).get("properties", {})
-            first_public_parent = properties.get("moz-phab:first-public-parent")
-            if isinstance(first_public_parent, dict):
-                first_public_parent = first_public_parent.get("node")
+            local_commits = properties.get("local:commits") or {}
+            if not local_commits:
+                logger.warn("Diff %s has no local:commits property", diff["id"])
+
+            first_public_parent = None
+            # local:commits is keyed by the local commit node , which may differ from
+            # the public commit identifier exposed by Phabricators commits attachment
+            # hence iterating over values (there is only one in the dict but key unknown).
+            for local_commit in local_commits.values():
+                first_public_parent = local_commit.get("firstPublicParent")
+                if first_public_parent:
+                    break
             logger.info(
                 "Adding patch #{} to stack ({})".format(
                     diff["id"], "merged" if merged else "non-merged"
